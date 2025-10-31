@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>🔢 Memory Span Test – NeuroTest</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="theme.js"></script>
+    <style>
+        /* Memory Span specific styles */
+        .test-page {
+            min-height: 100vh;
+            background: var(--bg);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.15;
+            background: 
+                radial-gradient(circle at 20% 50%, var(--accent) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, var(--accent-2) 0%, transparent 50%);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            z-index: 100;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--panel);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-button:hover {
+            transform: translateX(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .test-container {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 6rem 2rem 4rem 2rem;
+        }
+
+        .test-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .test-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .test-title {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .test-subtitle {
+            color: var(--muted);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .intro-panel {
+            background: var(--card);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 0.6s ease-out 0.2s backwards;
+        }
+
+        .intro-panel h2 {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-size: 1.8rem;
+            margin: 0 0 1.5rem 0;
+            color: var(--text);
+        }
+
+        .intro-panel p {
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+        }
+
+        .instructions-box {
+            background: var(--secondary);
+            border-left: 4px solid var(--accent);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .instructions-box h3 {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-size: 1.3rem;
+            margin: 0 0 1rem 0;
+            color: var(--text);
+        }
+
+        .instructions-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .instructions-list li {
+            padding: 0.75rem 0;
+            color: var(--text);
+            font-size: 1rem;
+            line-height: 1.6;
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+
+        .instructions-list li::before {
+            content: '✓';
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 1.25rem 2rem;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(61, 123, 253, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .phase-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .phase-text {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            font-weight: 700;
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .display-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            gap: 2rem;
+        }
+
+        .display-prompt {
+            font-size: 1.5rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .sequence-display {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-size: clamp(8rem, 20vw, 15rem);
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 0 40px rgba(61, 123, 253, 0.5);
+            animation: stimulusPop 0.3s ease-out;
+        }
+
+        .input-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            gap: 2rem;
+        }
+
+        .input-prompt {
+            font-size: 1.3rem;
+            color: var(--muted);
+            font-weight: 600;
+            text-align: center;
+            padding: 0 2rem;
+        }
+
+        .typed-display {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-size: clamp(4rem, 12vw, 8rem);
+            font-weight: 700;
+            color: var(--text);
+            min-height: 1.2em;
+            letter-spacing: 0.5rem;
+        }
+
+        .results-panel {
+            position: relative;
+            background: var(--card);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .results-panel h2 {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-size: 2rem;
+            margin: 0 0 2rem 0;
+            text-align: center;
+            color: var(--text);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stat-card {
+            background: var(--secondary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .verdict-box {
+            background: linear-gradient(135deg, var(--secondary), var(--condition-bg));
+            border: 2px solid var(--condition-border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .verdict-label {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+
+        .verdict-message {
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes stimulusPop {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .test-container {
+                padding: 5rem 1.5rem 3rem 1.5rem;
+            }
+
+            .intro-panel {
+                padding: 2rem;
+            }
+
+            .back-button {
+                top: 1rem;
+                left: 1rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body class="test-page">
+    <div class="animated-bg"></div>
+    
+    <a class="back-button" href="index.html">
+        <span>←</span>
+        <span>Back to Home</span>
+    </a>
+
+    <div class="test-container">
+        <div class="test-header">
+            <span class="test-icon">🔢</span>
+            <h1 class="test-title">Memory Span Test</h1>
+            <p class="test-subtitle">Forward Digit Recall</p>
+        </div>
+
+        <section id="intro" class="intro-panel">
+            <h2>🧠 Ready to challenge your memory?</h2>
+            <p>
+                Let's test your working memory! This test measures how many numbers you can remember and recall in the correct order. It's a fun way to assess your short-term memory capacity! 💭
+            </p>
+
+            <div class="instructions-box">
+                <h3>📋 How It Works:</h3>
+                <ul class="instructions-list">
+                    <li>A sequence of <strong>random digits</strong> will appear on screen, one at a time 🎲</li>
+                    <li>After the sequence, <strong>type the numbers</strong> in the exact same order you saw them ⌨️</li>
+                    <li>Press the <strong>#</strong> key to submit your answer ✅</li>
+                    <li>Sequences start short and get <strong>progressively longer</strong> 📈</li>
+                    <li>You get <strong>2 attempts</strong> at each length – fail both and the test ends 🎯</li>
+                </ul>
+            </div>
+
+            <div class="button-group">
+                <button id="serialBtn" class="btn btn-primary">
+                    <span>🔌</span>
+                    <span>Use Arduino</span>
+                </button>
+                <button id="startBtn" class="btn btn-secondary">
+                    <span>⌨️</span>
+                    <span>With Laptop Keypad</span>
+                </button>
+            </div>
+        </section>
+
+        <section id="phaseMsg" class="phase-screen hidden">
+            <div class="phase-text" id="phaseText">Get Ready… 🚀</div>
+        </section>
+
+        <section id="display" class="display-screen hidden">
+            <div class="display-prompt">Memorize the sequence:</div>
+            <div id="sequence" class="sequence-display" aria-live="polite">•</div>
+        </section>
+
+        <section id="input" class="input-screen hidden">
+            <div class="input-prompt">Enter the sequence then press <strong>#</strong></div>
+            <div id="typed" class="typed-display">_</div>
+        </section>
+
+        <section id="results" class="results-panel hidden">
+            <h2>🏆 Your Results</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">🔢 Memory Span Score</div>
+                    <div class="stat-value"><span id="forwardScore">-</span></div>
+                </div>
+            </div>
+            <div id="condition" class="verdict-box"></div>
+            <div class="button-group">
+                <a class="btn btn-primary" href="memory-span.html">
+                    <span>🔄</span>
+                    <span>Try Again</span>
+                </a>
+                <a class="btn btn-secondary" href="index.html">
+                    <span>🏠</span>
+                    <span>Back to Home</span>
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <script type="module" src="memory-span.js"></script>
+</body>
+
+</html>

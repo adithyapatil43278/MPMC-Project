@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Focus & Control Challenge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" />
+        <script type="module" src="theme.js"></script>
+</head>
+
+<body>
+    <main class="container narrow">
+        <a class="back" href="index.html">← Back</a>
+        <h1 class="title">Focus & Control Challenge</h1>
+
+        <section id="intro" class="panel">
+            <h2>Welcome to the Focus & Control Challenge!</h2>
+            <p>This test measures your ability to stay focused and control your impulses. The rule is simple, but
+                requires concentration.</p>
+            <h3>Instructions:</h3>
+            <ul>
+                <li>Numbers from 1 to 9 will flash on the screen.</li>
+                <li>Press the matching number on your keypad for EVERY number you see...</li>
+                <li><strong>Except '3'.</strong> When you see a '3', do nothing.</li>
+                <li>The test consists of 40 rounds (30 Go, 10 No-Go).</li>
+            </ul>
+            <div class="actions">
+                <button id="startBtn" class="primary">Start Test</button>
+                <button id="serialBtn" class="secondary"
+                    title="Optional: use Arduino keypad via Web Serial (Chromium browsers)">Use Arduino
+                    (optional)</button>
+            </div>
+            <p class="note">Tip: Keyboard digits 1-9 are accepted. For Arduino input, send digits 1-9 as
+                newline-terminated lines.</p>
+        </section>
+
+        <section id="getReady" class="panel hidden">
+            <div class="center">Get Ready…</div>
+        </section>
+
+        <section id="test" class="panel hidden">
+            <div id="stimulus" class="stimulus">•</div>
+            <div id="progress" class="progress">Trial <span id="trial">0</span>/40</div>
+        </section>
+
+        <section id="results" class="panel hidden">
+            <h2>Results</h2>
+            <div class="results-grid">
+                <div><strong>Impulse Errors (Pressed '3'):</strong> <span id="commission">0</span></div>
+                <div><strong>Attention Errors (Missed a number):</strong> <span id="omission">0</span></div>
+            </div>
+            <div id="condition" class="condition"></div>
+            <div class="actions">
+                <a class="secondary" href="focus-control.html">Run Again</a>
+                <a class="primary" href="index.html">Home</a>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="focus-control.js"></script>
+</body>
+
+</html>
