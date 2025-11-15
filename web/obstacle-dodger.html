@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🚀 Obstacle Dodger – NeuroTest</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="theme.js"></script>
+  <style>
+    /* Obstacle Dodger specific styles */
+    .test-page {
+      min-height: 100vh;
+      background: var(--bg);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .animated-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.15;
+      background: 
+        radial-gradient(circle at 20% 50%, var(--accent) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, var(--accent-2) 0%, transparent 50%);
+    }
+
+    .back-button {
+      position: fixed;
+      top: 2rem;
+      left: 2rem;
+      z-index: 100;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-button:hover {
+      transform: translateX(-5px);
+      border-color: var(--accent);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .test-container {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 6rem 2rem 4rem 2rem;
+    }
+
+    .test-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .test-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      display: block;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .test-title {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .test-subtitle {
+      color: var(--muted);
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .intro-panel {
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      animation: fadeInUp 0.6s ease-out 0.2s backwards;
+    }
+
+    .intro-panel h2 {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-size: 1.8rem;
+      margin: 0 0 1.5rem 0;
+      color: var(--text);
+    }
+
+    .intro-panel p {
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      font-size: 1.05rem;
+    }
+
+    .instructions-box {
+      background: var(--secondary);
+      border-left: 4px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .controls-group {
+      background: var(--secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .controls-group label {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .mode-select, .sensitivity-select {
+      flex: 1;
+      min-width: 180px;
+      padding: 0.75rem 1rem;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .mode-select:focus, .sensitivity-select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(61, 123, 253, 0.1);
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 16px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(61, 123, 253, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--card);
+      color: var(--text);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .status-message {
+      text-align: center;
+      font-size: 1.1rem;
+      color: var(--muted);
+      font-weight: 500;
+      padding: 1rem;
+      background: var(--secondary);
+      border-radius: 12px;
+      margin-top: 1rem;
+    }
+
+    .game-panel {
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .progress {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: var(--accent);
+    }
+
+    #gameCanvas {
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      border: 2px solid var(--border);
+      background: #000;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* overlay when visible */
+    .overlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .overlay.hidden {
+      display: none;
+    }
+
+    .overlay-content {
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 2px solid var(--border);
+      padding: 2.5rem;
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      text-align: center;
+      min-width: 320px;
+      animation: fadeInUp 0.4s ease-out;
+    }
+
+    .overlay-title {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-size: 2rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .overlay-score {
+      font-size: 1.4rem;
+      color: var(--text);
+      margin-bottom: 2rem;
+      font-weight: 600;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .test-container {
+        padding: 5rem 1.5rem 3rem 1.5rem;
+      }
+
+      .intro-panel, .game-panel {
+        padding: 2rem;
+      }
+
+      .back-button {
+        top: 1rem;
+        left: 1rem;
+      }
+
+      .controls-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .mode-select, .sensitivity-select {
+        min-width: 100%;
+      }
+
+      #gameCanvas {
+        max-width: 100%;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body class="test-page">
+  <div class="animated-bg"></div>
+  
+  <script>
+    // Apply theme on page load
+    import { initTheme } from './theme.js';
+    initTheme();
+  </script>
+
+  <a class="back-button" href="index.html">
+    <span>←</span>
+    <span>Back to Home</span>
+  </a>
+
+  <div class="test-container">
+    <div class="test-header">
+      <span class="test-icon">🚀</span>
+      <h1 class="test-title">Obstacle Dodger</h1>
+      <p class="test-subtitle">Spatial Awareness & Reaction Test</p>
+    </div>
+
+    <section id="intro" class="intro-panel">
+      <h2>🎮 Ready to test your reflexes?</h2>
+      
+      <!-- High Score Display -->
+      <div id="highScoreDisplay" class="high-score-box" style="background: linear-gradient(135deg, var(--secondary), var(--accent-2) 5%); border: 2px solid var(--accent); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; text-align: center;">
+        <div style="font-size: 0.9rem; color: var(--muted); font-weight: 600; margin-bottom: 0.5rem;">🏆 CURRENT HIGH SCORE</div>
+        <div style="font-size: 2.5rem; font-weight: 700; color: var(--accent); font-family: 'Space Grotesk', 'Inter', sans-serif; margin-bottom: 0.3rem;">
+          <span id="highScoreValue">0</span>
+        </div>
+        <div style="font-size: 1.1rem; color: var(--text); font-weight: 600;">
+          Held by: <span id="highScoreHolder" style="color: var(--accent);">No one yet</span>
+        </div>
+      </div>
+
+      <div class="instructions-box">
+        <p style="margin: 0; color: var(--text); line-height: 1.7;">
+          🌟 Choose your control mode from the dropdown below<br>
+          🎮 Move side to side to dodge falling obstacles<br>
+          ⏱️ Survive as long as you can — speed keeps rising!<br>
+          🏆 Each obstacle dodged adds to your score<br>
+          📏 In sensor mode, hand distance controls your position (5-30cm range)
+        </p>
+      </div>
+
+      <div class="controls-group">
+        <label for="inputModeSelect">🕹️ Input Mode:</label>
+        <select id="inputModeSelect" class="mode-select">
+          <option value="">--choose mode of input--</option>
+          <option value="keyboard">⌨️ Arrow Keys</option>
+          <option value="arduino">📡 Distance Sensor</option>
+        </select>
+
+        <label for="sensitivitySelect">⚙️ Sensitivity:</label>
+        <select id="sensitivitySelect" class="sensitivity-select">
+          <option value="1">1 - Low</option>
+          <option value="2" selected>2 - Default</option>
+          <option value="3">3 - Medium</option>
+          <option value="4">4 - High</option>
+          <option value="5">5 - Very High</option>
+        </select>
+      </div>
+
+      <div style="text-align: center;">
+        <button id="startBtn" class="btn btn-primary">
+          <span>Start Game 🚀</span>
+        </button>
+      </div>
+
+      <div id="modeStatus" class="status-message">Mode: Not selected</div>
+    </section>
+
+    <section class="game-panel hidden" id="game">
+      <div class="progress">Score: <span id="score">0</span></div>
+      <canvas id="gameCanvas" width="480" height="360"></canvas>
+      <div id="gameMsg" class="status-message" style="margin-top: 1rem;"></div>
+
+      <!-- Game over overlay -->
+      <div id="gameOverOverlay" class="hidden overlay" style="position:absolute;inset:0;z-index:5;">
+        <div class="overlay-content">
+          <div id="finalMsg" class="overlay-title">Game Over! 💥</div>
+          <div class="overlay-score">Final Score: <span id="finalScoreValue">0</span></div>
+          
+          <!-- New High Score Message (hidden by default) -->
+          <div id="newHighScoreMsg" class="hidden" style="background: linear-gradient(135deg, var(--accent), var(--accent-2)); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; animation: pulse 1.5s ease-in-out infinite;">
+            <div style="font-size: 1.5rem; font-weight: 700; color: white; margin-bottom: 0.5rem;">🎉 NEW HIGH SCORE! 🎉</div>
+            <div style="color: rgba(255,255,255,0.9); font-size: 1rem;">You've beaten the record!</div>
+          </div>
+
+          <!-- Name Input for New High Score (hidden by default) -->
+          <div id="nameInputSection" class="hidden" style="margin-bottom: 1.5rem;">
+            <label for="playerNameInput" style="display: block; font-weight: 600; color: var(--text); margin-bottom: 0.5rem;">Enter your name for the leaderboard:</label>
+            <input 
+              type="text" 
+              id="playerNameInput" 
+              placeholder="Your name" 
+              maxlength="20"
+              style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text); font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem;"
+            />
+            <button id="saveNameBtn" class="btn btn-primary" style="width: 100%; margin: 0;">
+              <span>💾 Save High Score</span>
+            </button>
+          </div>
+
+          <div class="button-group">
+            <button id="backToMainBtn" class="btn btn-secondary">
+              <span>← Back to Home</span>
+            </button>
+            <button id="playAgainBtn" class="btn btn-primary">
+              <span>🔄 Play Again</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="obstacleDodger.js"></script>
+</body>
+</html>

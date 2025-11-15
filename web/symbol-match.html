@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>🎭 Symbol Match Challenge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="theme.js"></script>
+    <style>
+        body {
+            background: var(--bg);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.15;
+            background: 
+                radial-gradient(circle at 20% 50%, var(--accent) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, var(--accent-2) 0%, transparent 50%);
+        }
+
+        .title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .instructions-box {
+            background: var(--secondary);
+            border-left: 4px solid var(--accent);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .instructions-box h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.3rem;
+            margin: 0 0 1rem 0;
+            color: var(--text);
+        }
+
+        .instructions-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .instructions-list li {
+            padding: 0.75rem 0;
+            color: var(--text);
+            font-size: 1rem;
+            line-height: 1.6;
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+
+        .instructions-list li::before {
+            content: '⭐';
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .key {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            background: var(--card);
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .key div {
+            background: var(--secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(61, 123, 253, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--card);
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .duration-input {
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .duration-input label {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .duration-input input {
+            padding: 0.5rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 80px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+    <main class="container narrow">
+        <a class="back" href="index.html">← Back</a>
+        <h1 class="title">🎭 Symbol Match Challenge</h1>
+
+        <section id="intro" class="panel">
+            <h2>Welcome to the Symbol Match Challenge! 🎉</h2>
+            <p>Test your mental processing speed with this fun and engaging challenge! Match symbols to numbers as quickly as you can. 🕒</p>
+            <h3>Key:</h3>
+            <div class="key" id="key">
+                <div>🔺 = 1</div>
+                <div>🔵 = 2</div>
+                <div>⭐ = 3</div>
+                <div>🟢 = 4</div>
+            </div>
+            <div class="instructions-box">
+                <h3>📜 How to Play:</h3>
+                <ul class="instructions-list">
+                    <li>Keep your eye on the key at the top of the screen.</li>
+                    <li>A symbol will appear in the center of the screen.</li>
+                    <li>Press the matching number from the key on your keypad as quickly as you can.</li>
+                    <li>The goal is to get as many correct matches as possible in the time you set.</li>
+                </ul>
+            </div>
+            <div class="duration-input">
+                <label for="durationInput">⏱ Set Duration (seconds):</label>
+                <input type="number" id="durationInput" value="90" min="10" max="300">
+                <button id="updateDurationBtn" class="btn btn-secondary">Update</button>
+            </div>
+            <div class="actions">
+                <!-- Arduino is primary now; laptop keypad is optional -->
+                <button id="serialBtn" class="btn btn-primary" title="Use Arduino keypad via Web Serial (Chromium browsers)">🔌 Use Arduino (recommended)</button>
+                <button id="startBtn" class="btn btn-secondary">⌨️ Use Laptop Keypad (optional)</button>
+            </div>
+        </section>
+
+        <section id="test" class="panel hidden">
+            <div id="time" class="progress">⏳ Time Left: <span id="timeLeft">90</span>s</div>
+            <div class="center">
+                <div id="liveKey" class="key" style="margin-bottom:10px"></div>
+                <div id="symbol" class="stimulus" aria-live="polite">?</div>
+                <div id="feedback" class="progress" style="height:24px"></div>
+                <div class="progress">🏆 Score: <span id="score">0</span></div>
+            </div>
+        </section>
+
+        <section id="results" class="panel hidden">
+            <h2>🎉 Results</h2>
+            <div class="results-grid">
+                <div><strong>Total Correct Matches:</strong> <span id="finalScore">0</span></div>
+            </div>
+            <div id="condition" class="condition"></div>
+            <div class="actions">
+                <a class="btn btn-secondary" href="symbol-match.html">🔄 Run Again</a>
+                <a class="btn btn-primary" href="index.html">🏠 Home</a>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="symbol-match.js"></script>
+</body>
+
+</html>

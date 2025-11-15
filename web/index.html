@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>NeuroTest – Cognitive Assessment Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module">
+        import { initTheme, buildThemeSelector } from './theme.js';
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            const sel = document.getElementById('themeSelect');
+            if (sel) buildThemeSelector(sel);
+            const y = document.getElementById('year');
+            if (y) y.textContent = new Date().getFullYear();
+            
+            // Initialize animations
+            initParticles();
+            initNeuralNetwork();
+            initCardAnimations();
+        });
+
+        // Floating particles background
+        function initParticles() {
+            const canvas = document.getElementById('particles');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = [];
+            const particleCount = 80;
+
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 2 + 0.5,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    opacity: Math.random() * 0.5 + 0.2
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const isDark = document.body.classList.contains('theme-dark') || 
+                               document.body.classList.contains('theme-dracula') ||
+                               document.body.classList.contains('theme-nord') ||
+                               document.body.classList.contains('theme-solarized');
+                
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = isDark ? `rgba(110, 168, 254, ${p.opacity})` : `rgba(61, 123, 253, ${p.opacity})`;
+                    ctx.fill();
+                });
+
+                // Connect nearby particles
+                particles.forEach((p1, i) => {
+                    particles.slice(i + 1).forEach(p2 => {
+                        const dx = p1.x - p2.x;
+                        const dy = p1.y - p2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist < 120) {
+                            ctx.beginPath();
+                            ctx.moveTo(p1.x, p1.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.strokeStyle = isDark ? `rgba(110, 168, 254, ${0.15 * (1 - dist / 120)})` : `rgba(61, 123, 253, ${0.1 * (1 - dist / 120)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    });
+                });
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+
+        // Neural network visualization
+        function initNeuralNetwork() {
+            const canvas = document.getElementById('neural');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const nodes = [];
+            const nodeCount = 30;
+            
+            for (let i = 0; i < nodeCount; i++) {
+                nodes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.3,
+                    vy: (Math.random() - 0.5) * 0.3,
+                    pulse: Math.random() * Math.PI * 2
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const isDark = document.body.classList.contains('theme-dark') || 
+                               document.body.classList.contains('theme-dracula') ||
+                               document.body.classList.contains('theme-nord') ||
+                               document.body.classList.contains('theme-solarized');
+
+                nodes.forEach(node => {
+                    node.x += node.vx;
+                    node.y += node.vy;
+                    node.pulse += 0.02;
+
+                    if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+                    if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+
+                    const pulseSize = 3 + Math.sin(node.pulse) * 1.5;
+                    
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, pulseSize, 0, Math.PI * 2);
+                    const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, pulseSize);
+                    gradient.addColorStop(0, isDark ? 'rgba(196, 59, 122, 0.6)' : 'rgba(196, 59, 122, 0.5)');
+                    gradient.addColorStop(1, isDark ? 'rgba(196, 59, 122, 0)' : 'rgba(196, 59, 122, 0)');
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                });
+
+                // Connect nodes
+                nodes.forEach((n1, i) => {
+                    nodes.slice(i + 1).forEach(n2 => {
+                        const dx = n1.x - n2.x;
+                        const dy = n1.y - n2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist < 150) {
+                            ctx.beginPath();
+                            ctx.moveTo(n1.x, n1.y);
+                            ctx.lineTo(n2.x, n2.y);
+                            ctx.strokeStyle = isDark ? `rgba(227, 107, 174, ${0.2 * (1 - dist / 150)})` : `rgba(196, 59, 122, ${0.15 * (1 - dist / 150)})`;
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                        }
+                    });
+                });
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+
+        // Card animations on scroll
+        function initCardAnimations() {
+            const cards = document.querySelectorAll('.test-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            cards.forEach(card => observer.observe(card));
+        }
+    </script>
+    <style>
+        /* Homepage-specific styles */
+        .hero-section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            overflow: hidden;
+        }
+
+        #particles, #neural {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #particles {
+            opacity: 0.6;
+        }
+
+        #neural {
+            opacity: 0.4;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 900px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .logo-container {
+            margin-bottom: 2rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .brain-icon {
+            font-size: 4rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 4px 20px rgba(61, 123, 253, 0.3));
+        }
+
+        .main-title {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+            background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .subtitle-hero {
+            font-size: clamp(1.1rem, 2vw, 1.4rem);
+            color: var(--muted);
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+
+        .tagline {
+            font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+            color: var(--muted);
+            max-width: 700px;
+            margin: 0 auto 3rem auto;
+            line-height: 1.6;
+        }
+
+        .theme-selector-modern {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--panel);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.75rem 1.25rem;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-selector-modern label {
+            font-size: 0.9rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .theme-selector-modern select {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-selector-modern select:hover {
+            border-color: var(--accent);
+        }
+
+        .tests-grid {
+            position: relative;
+            z-index: 2;
+            /* stack rows vertically so each card+description occupies its own level */
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+            max-width: 1100px;
+            margin: 4rem auto;
+            padding: 2rem;
+            align-items: center;
+        }
+
+        .test-card {
+            position: relative;
+            background: var(--card);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    /* place cards like dice-5: top-left, top-right, center, bottom-left, bottom-right */
+    .test-card { width: 100%; max-width: 580px; min-height: 300px; padding: 2.8rem; }
+        .test-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+        .test-row:nth-child(even) { flex-direction: row-reverse; }
+        .card-text { flex: 1 1 55%; max-width: 680px; text-align: left; }
+        .test-row:nth-child(even) .card-text { text-align: right; }
+        .card-text .card-subtitle { margin-top: 0; font-weight:600; }
+        .card-text .card-description { margin-bottom: 1rem; }
+        .card-arrow { display:inline-block; margin-top:0.5rem; }
+    /* remove previous grid placement rules (not used for stacked rows) */
+
+        .test-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .test-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .test-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            border-color: var(--accent);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .test-card:hover .card-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .card-title {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 0.75rem 0;
+            color: var(--text);
+        }
+
+        .card-subtitle {
+            font-size: 1rem;
+            color: var(--muted);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-arrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-weight: 600;
+            transition: gap 0.3s ease;
+        }
+
+        .test-card:hover .card-arrow {
+            gap: 1rem;
+        }
+
+        .footer-modern {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .theme-selector-modern {
+                top: 1rem;
+                right: 1rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .tests-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+            .test-row {
+                flex-direction: column !important;
+                align-items: stretch;
+            }
+            .card-text { text-align: left !important; }
+            .test-card { padding: 2rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="particles"></canvas>
+    <canvas id="neural"></canvas>
+
+    <div class="theme-selector-modern">
+        <label for="themeSelect">🎨</label>
+        <select id="themeSelect"></select>
+    </div>
+
+    <section class="hero-section">
+        <div class="hero-content">
+            <div class="logo-container">
+                <div class="brain-icon">🧠</div>
+            </div>
+            <h1 class="main-title">NeuroTest</h1>
+            <p class="subtitle-hero">Microcontroller-Interfaced Cognitive Assessment Platform</p>
+            <p class="tagline">
+                Experience cutting-edge cognitive evaluation through interactive challenges designed to measure reaction time, memory, focus, processing speed, and logical reasoning.
+            </p>
+        </div>
+    </section>
+
+    <section class="tests-grid">
+        <div class="test-row">
+            <a class="test-card" href="visual-reflex.html">
+                <span class="card-icon">⚡</span>
+                <h2 class="card-title">Visual Reflex</h2>
+            </a>
+            <div class="card-text">
+                <p class="card-subtitle">Choice Reaction Time (CRT)</p>
+                <p class="card-description">Test your reaction speed and decision-making ability with rapid visual stimuli challenges.</p>
+                <a class="card-arrow" href="visual-reflex.html">Start Test →</a>
+            </div>
+        </div>
+
+        <div class="test-row">
+            <a class="test-card" href="memory-span.html">
+                <span class="card-icon">🔢</span>
+                <h2 class="card-title">Memory Span</h2>
+            </a>
+            <div class="card-text">
+                <p class="card-subtitle">Forward & Backward Recall</p>
+                <p class="card-description">Evaluate your working memory capacity through progressive digit sequence challenges.</p>
+                <a class="card-arrow" href="memory-span.html">Start Test →</a>
+            </div>
+        </div>
+
+        <div class="test-row">
+            <a class="test-card" href="symbol-match.html">
+                <span class="card-icon">🔤</span>
+                <h2 class="card-title">Symbol Match</h2>
+            </a>
+            <div class="card-text">
+                <p class="card-subtitle">Processing Speed (SDMT-lite)</p>
+                <p class="card-description">Challenge your visual processing and pattern recognition abilities under time pressure.</p>
+                <a class="card-arrow" href="symbol-match.html">Start Test →</a>
+            </div>
+        </div>
+
+        <div class="test-row">
+            <a class="test-card" href="sequence-solver.html">
+                <span class="card-icon">🧩</span>
+                <h2 class="card-title">Sequence Solver</h2>
+            </a>
+            <div class="card-text">
+                <p class="card-subtitle">Logical Reasoning</p>
+                <p class="card-description">Solve complex numerical patterns to assess your analytical and problem-solving skills.</p>
+                <a class="card-arrow" href="sequence-solver.html">Start Test →</a>
+            </div>
+        </div>
+
+        <div class="test-row">
+            <a class="test-card" href="obstacle-dodger.html">
+                <span class="card-icon">🚧</span>
+                <h2 class="card-title">Obstacle Dodger</h2>
+            </a>
+            <div class="card-text">
+                <p class="card-subtitle">Sensor-Controlled Reflex Game</p>
+                <p class="card-description">Avoid falling obstacles using arrow keys or an Arduino distance sensor (DIST: readings).</p>
+                <a class="card-arrow" href="obstacle-dodger.html">Play →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- <footer class="footer-modern">
+        <p>© <span id="year"></span> NeuroTest – Cognitive Assessment Platform</p>
+        <p style="margin-top: 0.5rem; font-size: 0.85rem;">Built with Web Serial API for Arduino Integration</p>
+    </footer> -->
+</body>
+
+</html>
